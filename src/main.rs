@@ -349,11 +349,17 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
+    
+    /// Verifies that `l1_x86_sse2` produces the same result as `l1_generic` on identical inputs.
     #[test]
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     fn unit_test_x86() {
-        // TODO
-        assert!(false);
+        let im1 = solid_image(5, 5, C1);
+        let im2 = solid_image(5, 5, C2);
+
+        let res = unsafe { l1_x86_sse2(&im1, &im2) };
+        assert_eq!(res, EXPECTED_L1);
+        assert_eq!(res, l1_generic(&im1, &im2));
     }
 
     #[test]
