@@ -363,9 +363,26 @@ mod tests {
         assert!(false);
     }
 
+    use super::*;
+    use image::Rgb;
+
+    // Shared test fixtures for all L1 variants.
+    // Per-pixel L1: |13-10| + |16-20| + |35-30| = 12, over 25 pixels = 300.
+    const C1: [u8; 3] = [10, 20, 30];
+    const C2: [u8; 3] = [13, 16, 35];
+    const EXPECTED_L1: i32 = 300;
+
+    fn solid_image(width: u32, height: u32, color: [u8; 3]) -> RgbImage {
+        RgbImage::from_pixel(width, height, Rgb(color))
+    }
+
+    /// Verifies `l1_generic` on two solid-color 5x5 images and checks symmetry with identical inputs.
     #[test]
     fn unit_test_generic() {
-        // TODO
-        assert!(false);
+        let im1 = solid_image(5, 5, C1);
+        let im2 = solid_image(5, 5, C2);
+
+        assert_eq!(l1_generic(&im1, &im2), EXPECTED_L1);
+        assert_eq!(l1_generic(&im1, &im1), 0);
     }
 }
