@@ -17,3 +17,13 @@ Nous avons écrit et validé le premier test, celui de la version générique de
 Nous avons ajouté le test de la version `x86` (SSE2). Comme cette version doit produire exactement le même résultat que la version générique, nous réutilisons les mêmes images et les mêmes couleurs, et nous vérifions à la fois que la fonction renvoie la valeur attendue et qu'elle coïncide avec la version générique, qui nous sert de référence. Cette fonction étant `unsafe`, nous l'appelons dans un bloc `unsafe`, et comme elle n'existe que sur les processeurs x86, nous restreignons le test à cette architecture avec `#[cfg(target_arch = ...)]`.
 
 -> Test Validé
+
+## 3) unit_test_aarch64()
+
+-> cf branche develop_aarch64
+
+## 4) unit_test_prepare_tiles()
+
+Nous avons ajouté le test de `prepare_tiles`. Cette fonction lit toutes les images d'un dossier et les redimensionne à la taille demandée ; nous vérifions donc ici la taille des vignettes, pas leur contenu. Nous lui passons le dossier `assets/tiles-small`, qui contient quatre images, avec une taille de tuile de 8x8. Comme la fonction renvoie un `Result`, nous récupérons sa valeur avec `.expect(...)`, ce qui fait échouer le test avec un message clair si le dossier est introuvable. Nous vérifions ensuite que nous récupérons bien quatre vignettes, puis, pour chacune, que sa largeur et sa hauteur correspondent à la taille demandée.
+
+-> Test Validé
