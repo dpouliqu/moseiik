@@ -34,4 +34,10 @@ Nous avons ajouté le test de `prepare_target`, qui ouvre l'image cible, la rogn
 
 -> Test Validé
 
+## Tests d'intégration
+
+Après les tests unitaires, nous testons la fonction `compute_mosaic` de bout en bout dans `tests/temp.rs`. Le principe est de regénérer la mosaïque de `assets/kit.jpeg` avec la base de vignettes, puis de la comparer à l'image de référence `assets/ground-truth-kit.png`, générée avec une taille de tuile de 25 et un scaling de 1. Comme `compute_mosaic` ne renvoie rien mais écrit le résultat dans un fichier, le test relit ce fichier avant de le comparer.
+
+Nous ne comparons pas les deux images à l'identique. En effet, les vignettes sont chargées en parallèle, donc en cas d'égalité de distance entre deux vignettes pour un même bloc, le choix peut varier d'une exécution à l'autre. Nous avons mesuré cet écart en générant une fois la mosaïque puis en la comparant pixel à pixel avec la vérité terrain (à l'aide d'un petit script Python utilisant Pillow et numpy) : environ 0,13 % des pixels diffèrent. Une égalité stricte serait donc instable. Nous vérifions à la place que la proportion de pixels différents reste sous un seuil de 1 %, choisi au-dessus de l'écart mesuré mais bien en-dessous de ce que produirait une vraie erreur de calcul. Les trois tests couvrent les chemins générique, x86 (SSE2) et aarch64 (NEON).
+
 
