@@ -17,3 +17,9 @@ Nous avons écrit et validé le premier test, celui de la version générique de
 Nous avons ajouté le test de la version `x86` (SSE2). Comme cette version doit produire exactement le même résultat que la version générique, nous réutilisons les mêmes images et les mêmes couleurs, et nous vérifions à la fois que la fonction renvoie la valeur attendue et qu'elle coïncide avec la version générique, qui nous sert de référence. Cette fonction étant `unsafe`, nous l'appelons dans un bloc `unsafe`, et comme elle n'existe que sur les processeurs x86, nous restreignons le test à cette architecture avec `#[cfg(target_arch = ...)]`.
 
 -> Test Validé
+
+## 2) unit_test_aarch64()
+
+Nous avons ajouté le test de la version aarch64 (NEON). Comme pour la version x86, cette implémentation doit produire exactement le même résultat que la version générique. Nous réutilisons donc les mêmes images de test, les mêmes couleurs et la même valeur L1 attendue, puis nous vérifions que la fonction renvoie le résultat attendu et qu'il correspond à celui de l1_generic, qui reste notre référence. Cette fonction étant également unsafe, nous l'appelons dans un bloc unsafe, et comme elle n'existe que sur l'architecture aarch64, nous limitons sa compilation avec #[cfg(target_arch = "aarch64")]. Ce test ne pouvant pas être exécuté sur notre machine de développement x86, nous le validerons via Docker en émulation ARM.
+
+-> Test écrit, validation prévue sous Docker ARM

@@ -350,6 +350,19 @@ fn main() {
 #[cfg(test)]
 mod tests {
     
+    use super::*;
+    use image::Rgb;
+
+    // Shared test fixtures for all L1 variants.
+    // Per-pixel L1: |13-10| + |16-20| + |35-30| = 12, over 25 pixels = 300.
+    const C1: [u8; 3] = [10, 20, 30];
+    const C2: [u8; 3] = [13, 16, 35];
+    const EXPECTED_L1: i32 = 300;
+
+    fn solid_image(width: u32, height: u32, color: [u8; 3]) -> RgbImage {
+        RgbImage::from_pixel(width, height, Rgb(color))
+    }
+
     /// Verifies that `l1_x86_sse2` produces the same result as `l1_generic` on identical inputs.
     #[test]
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -365,21 +378,12 @@ mod tests {
     #[test]
     #[cfg(target_arch = "aarch64")]
     fn unit_test_aarch64() {
-        // TODO
-        assert!(false);
-    }
+        let im1 = solid_image(5, 5, C1);
+        let im2 = solid_image(5, 5, C2);
 
-    use super::*;
-    use image::Rgb;
-
-    // Shared test fixtures for all L1 variants.
-    // Per-pixel L1: |13-10| + |16-20| + |35-30| = 12, over 25 pixels = 300.
-    const C1: [u8; 3] = [10, 20, 30];
-    const C2: [u8; 3] = [13, 16, 35];
-    const EXPECTED_L1: i32 = 300;
-
-    fn solid_image(width: u32, height: u32, color: [u8; 3]) -> RgbImage {
-        RgbImage::from_pixel(width, height, Rgb(color))
+        let res = unsafe { l1_neon(&im1, &im2) };
+        assert_eq!(res, EXPECTED_L1);
+        assert_eq!(res, l1_generic(&im1, &im2));
     }
 
     /// Verifies `l1_generic` on two solid-color 5x5 images and checks symmetry with identical inputs.
