@@ -40,4 +40,10 @@ Après les tests unitaires, nous testons la fonction `compute_mosaic` de bout en
 
 Nous ne comparons pas les deux images à l'identique. En effet, les vignettes sont chargées en parallèle, donc en cas d'égalité de distance entre deux vignettes pour un même bloc, le choix peut varier d'une exécution à l'autre. Nous avons mesuré cet écart en générant une fois la mosaïque puis en la comparant pixel à pixel avec la vérité terrain (à l'aide d'un petit script Python utilisant Pillow et numpy) : environ 0,13 % des pixels diffèrent. Une égalité stricte serait donc instable. Nous vérifions à la place que la proportion de pixels différents reste sous un seuil de 1 %, choisi au-dessus de l'écart mesuré mais bien en-dessous de ce que produirait une vraie erreur de calcul. Les trois tests couvrent les chemins générique, x86 (SSE2) et aarch64 (NEON).
 
+## Exécution des tests dans Docker
+
+Pour rendre les tests reproductibles et indépendants de la machine, nous fournissons un `Dockerfile`. Il part de l'image officielle `rust`, installe les outils nécessaires, copie le projet, télécharge la base de vignettes (qui n'est pas versionnée) puis compile les tests. Son `ENTRYPOINT` lance `cargo test --release`, si bien que démarrer le conteneur exécute directement toute la suite de tests.
+
+Nous avons d'abord construit et lancé l'image sur notre architecture x86, où l'ensemble des tests unitaires et d'intégration passent dans le conteneur. L'image de base `rust` étant disponible aussi en version ARM, le même Dockerfile pourra ensuite être utilisé pour exécuter les tests sur architecture aarch64 via l'émulation, ce qui permettra de valider les versions NEON (`unit_test_aarch64` et `test_aarch64`).
+
 
