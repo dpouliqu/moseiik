@@ -27,3 +27,11 @@ Nous avons ajouté le test de la version `x86` (SSE2). Comme cette version doit 
 Nous avons ajouté le test de `prepare_tiles`. Cette fonction lit toutes les images d'un dossier et les redimensionne à la taille demandée ; nous vérifions donc ici la taille des vignettes, pas leur contenu. Nous lui passons le dossier `assets/tiles-small`, qui contient quatre images, avec une taille de tuile de 8x8. Comme la fonction renvoie un `Result`, nous récupérons sa valeur avec `.expect(...)`, ce qui fait échouer le test avec un message clair si le dossier est introuvable. Nous vérifions ensuite que nous récupérons bien quatre vignettes, puis, pour chacune, que sa largeur et sa hauteur correspondent à la taille demandée.
 
 -> Test Validé
+
+## 5) unit_test_prepare_target()
+
+Nous avons ajouté le test de `prepare_target`, qui ouvre l'image cible, la rogne pour que ses dimensions soient des multiples de la taille de tuile, puis lui applique un facteur d'agrandissement. Nous utilisons l'image `assets/target-small.png`, qui fait 10x10, avec une taille de tuile de 3. Avec un scaling de 1, l'image est rognée à 9x9 (car 10 - 10 % 3 = 9), et nous vérifions ces dimensions ainsi que le fait qu'elles soient bien des multiples de la taille de tuile. Nous refaisons ensuite l'appel avec un scaling de 2 et nous vérifions que les dimensions sont doublées (18x18), ce qui valide la mise à l'échelle.
+
+-> Test Validé
+
+

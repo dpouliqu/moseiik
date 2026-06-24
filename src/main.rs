@@ -407,4 +407,24 @@ mod tests {
             assert_eq!(tile.height(), tile_size.height);
         }
     }
+    
+    /// Checks that prepare_target crops the image to a multiple of the tile size, then applies scaling.
+    #[test]
+    fn unit_test_prepare_target() {
+        let tile_size = Size { width: 3, height: 3 };
+        let target = prepare_target("assets/target-small.png", 1, &tile_size)
+            .expect("prepare_target ne doit pas echouer sur une image valide");
+        
+        // target-small.png is 10x10, cropped to 9x9 since 10 - 10 % 3 = 9.
+        assert_eq!(target.width(), 9);
+        assert_eq!(target.height(), 9);
+        assert_eq!(target.width() % tile_size.width, 0);
+        assert_eq!(target.height() % tile_size.height, 0);
+        
+        // Scaling x2: dimensions double (9 -> 18).
+        let scaled = prepare_target("assets/target-small.png", 2, &tile_size)
+            .expect("prepare_target ne doit pas echouer");
+        assert_eq!(scaled.width(), 18);
+        assert_eq!(scaled.height(), 18);
+    }
 }
