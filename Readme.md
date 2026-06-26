@@ -53,3 +53,7 @@ Nous avons ajouté le test de la version aarch64 (NEON). Comme pour la version x
 
 -> Test écrit, validation prévue sous Docker ARM
 
+## Validation des tests sur architecture ARM
+
+Nous avons d'abord construit et lancé l'image sur notre architecture x86, où l'ensemble des tests unitaires et d'intégration passent dans le conteneur. L'image de base `rust` étant aussi disponible en version ARM, nous avons ensuite construit l'image pour l'architecture aarch64 grâce à l'émulation (QEMU). Dans ce conteneur ARM, ce sont les versions NEON qui sont compilées et exécutées : `unit_test_aarch64` et `test_aarch64` passent, ce qui valide enfin l'implémentation `l1_neon` que nous ne pouvions pas tester sur notre machine x86.
+
