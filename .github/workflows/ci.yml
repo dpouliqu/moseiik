@@ -1,0 +1,29 @@
+name: CI
+
+# Déclenche la CI à chaque push et chaque pull request.
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # Matrice : le job est exécuté une fois par architecture listée.
+    strategy:
+      matrix:
+        arch: [linux/amd64, linux/arm64]
+
+    steps:
+      # 1. Configure QEMU pour pouvoir émuler l'architecture ARM.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      # 2. Récupère le code du dépôt dans le runner.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 3. Construit l'image Docker pour l'architecture courante de la matrice.
+      - name: Build image
+        run: docker build --platform ${{ matrix.arch }} -t moseiik-test .
+
+      # 4. Lance les tests dans le conteneur.
+      - name: Run tests
+        run: docker run --platform ${{ matrix.arch }} --rm moseiik-test
