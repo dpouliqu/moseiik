@@ -1,4 +1,4 @@
 /target
-rustfmt.toml
+.git
 assets/images
 assets/moseiik_test_images.zip

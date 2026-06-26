@@ -349,23 +349,86 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
+    
+    use super::*;
+    use image::Rgb;
+
+    // Shared test fixtures for all L1 variants.
+    // Per-pixel L1: |13-10| + |16-20| + |35-30| = 12, over 25 pixels = 300.
+    const C1: [u8; 3] = [10, 20, 30];
+    const C2: [u8; 3] = [13, 16, 35];
+    const EXPECTED_L1: i32 = 300;
+
+    fn solid_image(width: u32, height: u32, color: [u8; 3]) -> RgbImage {
+        RgbImage::from_pixel(width, height, Rgb(color))
+    }
+
+    /// Verifies that `l1_x86_sse2` produces the same result as `l1_generic` on identical inputs.
     #[test]
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     fn unit_test_x86() {
-        // TODO
-        assert!(false);
+        let im1 = solid_image(5, 5, C1);
+        let im2 = solid_image(5, 5, C2);
+
+        let res = unsafe { l1_x86_sse2(&im1, &im2) };
+        assert_eq!(res, EXPECTED_L1);
+        assert_eq!(res, l1_generic(&im1, &im2));
     }
 
     #[test]
     #[cfg(target_arch = "aarch64")]
     fn unit_test_aarch64() {
-        // TODO
-        assert!(false);
+        let im1 = solid_image(5, 5, C1);
+        let im2 = solid_image(5, 5, C2);
+
+        let res = unsafe { l1_neon(&im1, &im2) };
+        assert_eq!(res, EXPECTED_L1);
+        assert_eq!(res, l1_generic(&im1, &im2));
     }
 
+    /// Verifies `l1_generic` on two solid-color 5x5 images and checks symmetry with identical inputs.
     #[test]
     fn unit_test_generic() {
-        // TODO
-        assert!(false);
+        let im1 = solid_image(5, 5, C1);
+        let im2 = solid_image(5, 5, C2);
+
+        assert_eq!(l1_generic(&im1, &im2), EXPECTED_L1);
+        assert_eq!(l1_generic(&im1, &im1), 0);
+    }
+    
+    /// Checks that prepare_tiles returns the expected number of tiles, each resized to the requested size.
+    #[test]
+    fn unit_test_prepare_tiles() {
+        let tile_size = Size { width: 8, height: 8 };
+
+        let tiles = prepare_tiles("assets/tiles-small", &tile_size, false)
+            .expect("prepare_tiles ne doit pas echouer sur un dossier valide");
+
+        assert_eq!(tiles.len(), 4); // assets/tiles-small contient 4 images
+
+        for tile in &tiles {
+            assert_eq!(tile.width(), tile_size.width);
+            assert_eq!(tile.height(), tile_size.height);
+        }
+    }
+    
+    /// Checks that prepare_target crops the image to a multiple of the tile size, then applies scaling.
+    #[test]
+    fn unit_test_prepare_target() {
+        let tile_size = Size { width: 3, height: 3 };
+        let target = prepare_target("assets/target-small.png", 1, &tile_size)
+            .expect("prepare_target ne doit pas echouer sur une image valide");
+        
+        // target-small.png is 10x10, cropped to 9x9 since 10 - 10 % 3 = 9.
+        assert_eq!(target.width(), 9);
+        assert_eq!(target.height(), 9);
+        assert_eq!(target.width() % tile_size.width, 0);
+        assert_eq!(target.height() % tile_size.height, 0);
+        
+        // Scaling x2: dimensions double (9 -> 18).
+        let scaled = prepare_target("assets/target-small.png", 2, &tile_size)
+            .expect("prepare_target ne doit pas echouer");
+        assert_eq!(scaled.width(), 18);
+        assert_eq!(scaled.height(), 18);
     }
 }
