@@ -57,3 +57,7 @@ Nous avons ajouté le test de la version aarch64 (NEON). Comme pour la version x
 
 Nous avons d'abord construit et lancé l'image sur notre architecture x86, où l'ensemble des tests unitaires et d'intégration passent dans le conteneur. L'image de base `rust` étant aussi disponible en version ARM, nous avons ensuite construit l'image pour l'architecture aarch64 grâce à l'émulation (QEMU). Dans ce conteneur ARM, ce sont les versions NEON qui sont compilées et exécutées : `unit_test_aarch64` et `test_aarch64` passent, ce qui valide enfin l'implémentation `l1_neon` que nous ne pouvions pas tester sur notre machine x86.
 
+## Intégration continue (GitHub Actions)
+
+Pour automatiser tout ce qui précède, nous avons ajouté un workflow GitHub Actions (`.github/workflows/ci.yml`) qui se déclenche à chaque push. Il définit un seul job, décliné sur les deux architectures grâce à une matrice (`linux/amd64` et `linux/arm64`). Pour chaque architecture, le job configure l'émulation QEMU, récupère le code, construit l'image Docker puis lance les tests dans le conteneur. Ainsi, l'ensemble des tests unitaires et d'intégration est rejoué automatiquement sur x86 et sur ARM à chaque modification, et le résultat est visible directement sur le dépôt.
+
