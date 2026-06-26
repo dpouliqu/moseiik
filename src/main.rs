@@ -378,8 +378,12 @@ mod tests {
     #[test]
     #[cfg(target_arch = "aarch64")]
     fn unit_test_aarch64() {
-        // TODO
-        assert!(false);
+        let im1 = solid_image(5, 5, C1);
+        let im2 = solid_image(5, 5, C2);
+
+        let res = unsafe { l1_neon(&im1, &im2) };
+        assert_eq!(res, EXPECTED_L1);
+        assert_eq!(res, l1_generic(&im1, &im2));
     }
 
     /// Verifies `l1_generic` on two solid-color 5x5 images and checks symmetry with identical inputs.

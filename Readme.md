@@ -47,3 +47,9 @@ Pour rendre les tests reproductibles et indépendants de la machine, nous fourni
 Nous avons d'abord construit et lancé l'image sur notre architecture x86, où l'ensemble des tests unitaires et d'intégration passent dans le conteneur. L'image de base `rust` étant disponible aussi en version ARM, le même Dockerfile pourra ensuite être utilisé pour exécuter les tests sur architecture aarch64 via l'émulation, ce qui permettra de valider les versions NEON (`unit_test_aarch64` et `test_aarch64`).
 
 
+## 2) unit_test_aarch64()
+
+Nous avons ajouté le test de la version aarch64 (NEON). Comme pour la version x86, cette implémentation doit produire exactement le même résultat que la version générique. Nous réutilisons donc les mêmes images de test, les mêmes couleurs et la même valeur L1 attendue, puis nous vérifions que la fonction renvoie le résultat attendu et qu'il correspond à celui de l1_generic, qui reste notre référence. Cette fonction étant également unsafe, nous l'appelons dans un bloc unsafe, et comme elle n'existe que sur l'architecture aarch64, nous limitons sa compilation avec #[cfg(target_arch = "aarch64")]. Ce test ne pouvant pas être exécuté sur notre machine de développement x86, nous le validerons via Docker en émulation ARM.
+
+-> Test écrit, validation prévue sous Docker ARM
+
